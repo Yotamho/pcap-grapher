@@ -2,6 +2,7 @@ import pyshark
 from matplotlib import pyplot as plt
 import matplotlib.patches as mpatches
 
+import mpld3
 import src.config
 from src.memory import Memory
 
@@ -56,15 +57,19 @@ class PcapSchema:
         fig, ax = plt.subplots()
         ytick_labels = []
         yticks = []
-        # minimal_timestamp = self.memory.get_minimal_timestamp()
+        minimal_timestamp = self.memory.get_minimal_timestamp()
         for i, (four_tuple, flow) in enumerate(self.memory.items()):
-            ax.broken_barh([(flow.start_time, flow.end_time - flow.start_time)], (i * 5, 4),
+            ax.broken_barh([(flow.start_time - minimal_timestamp, flow.end_time - flow.start_time)], (i * 5, 4),
                            facecolors=self.get_color(flow.client.port))
             ytick_labels.append(flow.server.port)
             yticks.append(i * 5 + 2.5)
+        ax.set_xlabel('Seconds')
         ax.set_yticklabels(ytick_labels)
         ax.set_yticks(yticks)
-        plt.legend(handles=[mpatches.Patch(color=color, label=src_port) for src_port, color in self.colors.items()])
+        ax.set_ylabel('External Port')
+        plt.legend(title='Internal Port', handles=[mpatches.Patch(color=color, label=src_port) for src_port, color in self.colors.items()])
+        # tooltip = mpld3.plugins.LineHTMLTooltip(ax.plot(), label="dsdasda")
+        # mpld3.plugins.connect(fig, tooltip)
         plt.show()
 
         # def draw_gantt(self):
