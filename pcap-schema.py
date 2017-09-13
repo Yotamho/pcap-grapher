@@ -1,5 +1,5 @@
 import pyshark
-import mpld3
+import numpy as np
 from matplotlib import pyplot as plt
 import matplotlib.patches as mpatches
 
@@ -14,7 +14,8 @@ class PcapSchema:
         self.pcap_path = config.pcap_path
 
         # append the custom display-filter to the client-ip filter
-        self.display_filter = "ip.addr==" + config.client_ip + " and " + config.display_filter
+        self.client_ip = config.client_ip
+        self.display_filter = "ip.addr==" + self.client_ip + " and " + config.display_filter
 
         self.memory = Memory()
         self.colors = {}
@@ -55,13 +56,14 @@ class PcapSchema:
 
     def draw_gantt(self):
         fig, ax = plt.subplots()
+        fig.suptitle(self.client_ip)
         ytick_labels = []
         yticks = []
         minimal_timestamp = self.memory.get_minimal_timestamp()
         for i, (four_tuple, flow) in enumerate(self.memory.items()):
             ax.broken_barh([(flow.start_time - minimal_timestamp, flow.end_time - flow.start_time)], (i * 5, 4),
                            facecolors=self.get_color(flow.client.port), picker=True).set_gid(flow)
-            ytick_labels.append(flow.server.port)
+            ytick_labels.append(str(flow.server))
             yticks.append(i * 5 + 2.5)
         ax.set_xlabel('Seconds')
         ax.set_yticklabels(ytick_labels)
@@ -88,8 +90,42 @@ class PcapSchema:
         #     fig = ff.create_gantt(df)
         #     py.plot(fig, filename='gantt-simple-gantt-chart', world_readable=True)
 
+    def draw_flows(self):
+        minimal_timestamp = float(self.memory.get_minimal_timestamp())
+        ytick_labels = []
+        yticks = []
+        fig = plt.figure()
+        fig.suptitle(
+            self.client_ip + " on " + self.pcap_path[self.pcap_path.rfind("\\\\") + 2: self.pcap_path.rfind(".")])
+        ax = fig.add_subplot(111)
+        for i, (four_tuple, flow) in enumerate(self.memory.items()):
+            ax.plot(np.array([float(t) - minimal_timestamp for t in (flow.start_time, flow.end_time)]),
+                    np.array([i * 3] * 2), 'k')
+            ax.plot(np.array([float(pkt.sniff_timestamp) - minimal_timestamp for pkt in flow]),
+                    np.array([i * 3] * len(flow)), 'bo', color=self.get_color(flow.client.port), picker=True)[
+                0].set_gid(
+                flow)
+            ytick_labels.append(str(flow.server))
+            yticks.append(i * 3)
+        ax.set_yticks(yticks)
+        ax.set_yticklabels(ytick_labels)
+        ax.set_xlabel("Seconds since beginning of capture")
+        ax.set_ylabel("External IP:Port")
+        plt.legend(title='Internal Port',
+                   handles=[mpatches.Patch(color=color, label=src_port) for src_port, color in self.colors.items()])
+
+        def onpick(event):
+            print(event.artist.get_gid())
+
+        #
+        # # tooltip = mpld3.plugins.LineLabelTooltip(fig)
+        # # mpld3.plugins.connect(fig, tooltip)
+        fig.canvas.mpl_connect("pick_event", onpick)
+        plt.show()
+
 
 if __name__ == "__main__":
     pcap_schema = PcapSchema()
     pcap_schema.build_flows()
-    pcap_schema.draw_gantt()
+    # pcap_schema.draw_gantt()
+    pcap_schema.draw_flows()

@@ -1,3 +1,4 @@
+import time
 import pyshark.packet.packet
 import config
 from logging import Logger
@@ -37,7 +38,14 @@ class Flow:
     def __str__(self):
         return "\nFlow: " + str(self.client) + " -> " + str(self.server) + "\n\t" \
                + "Protocols: " + str(self.protocols) + "\n\t" \
-               + "No. of packets: " + str(len(self))
+               + "No. of packets: " + str(len(self)) + "\n\t" \
+               + "Start Time: " + time.strftime('%Y-%d-%m %H:%M:%S', time.gmtime(float(self.start_time))) + "\n\t" \
+               + "End Time: " + time.strftime('%Y-%d-%m %H:%M:%S', time.gmtime(float(self.end_time)))
+
+    def __iter__(self):
+        for pkt in self.packets:
+            yield pkt
+
 
 def check_if_packet_is_upstream(pkt: pyshark.packet.packet.Packet):
     addresses = (pkt.ip.src, pkt.ip.dst)
