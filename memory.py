@@ -31,6 +31,7 @@ class Memory:
     def get_minimal_timestamp(self):
         return min([flow.start_time for flow in self.inner.values()])
 
+
 def packet_to_four_tuple(pkt):
     if pkt.transport_layer:
         transport_layer = getattr(pkt, pkt.transport_layer.lower())
