@@ -7,7 +7,7 @@ Usage:
 
 #### Additional features: ####
 * Filter the traffic to get an even-more concise graph
-* Touch a packet (circle) to get details about the flow (incl. protocols)
+* Click a packet (circle) to get details about the flow on stdout (incl. protocols)
 
 #### Prerequisites: ####
 * pyshark
@@ -15,5 +15,4 @@ Usage:
 * matplotlib
 
 #### TODOs: ####
-* Add linux support (PCAP path loading)
 * Restructure project
