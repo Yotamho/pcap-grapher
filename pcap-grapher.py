@@ -36,7 +36,7 @@ class PcapSchema:
         yticks = []
         fig = plt.figure()
         fig.suptitle(
-            self.client_ip + " on " + self.pcap_path[self.pcap_path.rfind("\\\\") + 2: self.pcap_path.rfind(".")])
+            self.client_ip + " on " + self.pcap_path[self.pcap_path.rfind("\\\\") + 2:])
         ax = fig.add_subplot(111)
         for i, (four_tuple, flow) in enumerate(self.memory.items()):
             ax.plot(np.array([float(t) - minimal_timestamp for t in (flow.start_time, flow.end_time)]),
