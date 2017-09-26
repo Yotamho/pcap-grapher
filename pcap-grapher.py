@@ -13,8 +13,9 @@ class PcapSchema:
     def __init__(self):
         self.pcap_path = config.pcap_path
         self.client_ip = config.client_ip
-        self.display_filter = "ip.addr==" + self.client_ip + " and " + config.display_filter
-
+        self.display_filter = "ip.addr==" + self.client_ip
+        if config.display_filter:
+            self.display_filter = self.display_filter + " and " + config.display_filter
         self.memory = Memory()
         self.colors = {}
         self.cmap = plt.cm.get_cmap('hsv')
