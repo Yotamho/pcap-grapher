@@ -30,7 +30,10 @@ class Flow:
         self.count_protocol(pkt)
 
     def count_protocol(self, pkt: pyshark.packet.packet.Packet):
-        self.protocols[pkt.layers[3].layer_name] += 1
+        if len(pkt.layers) > 3:
+            self.protocols[pkt.layers[3].layer_name] += 1
+        else:
+            self.protocols[pkt.layers[2].layer_name] += 1
 
     def __len__(self):
         return len(self.packets)
