@@ -2,7 +2,7 @@
 ### Create an intuitive and interactive graph of a client's IP traffic. ###
 
 Usage:
-`pcap-schema.py [-h] [-f display-filter] <pcap path> <client's ip>`
+`pcap-grapher.py [-h] [-f display-filter] <pcap path> <client's ip>`
 ![Alt text](example.png?raw=true "example-graph")
 
 #### Additional features: ####
